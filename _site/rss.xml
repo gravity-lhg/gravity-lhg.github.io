@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>刘浩光的个人博客</title>
+    <description>为天地立心, 为生民立命, 为往圣继绝学, 为万世开太平</description>
+    <link>http://localhost:4000//</link>
+    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Sat, 04 Mar 2023 21:09:31 +0800</pubDate>
+    <lastBuildDate>Sat, 04 Mar 2023 21:09:31 +0800</lastBuildDate>
+    <generator>Jekyll v4.3.2</generator>
+    
+      <item>
+        <title>Docker 环境中从零开始搭建 Pytorch 环境</title>
+        <description>&lt;h1 id=&quot;docker-环境中从零开始搭建-pytorch-环境&quot;&gt;Docker 环境中从零开始搭建 Pytorch 环境&lt;/h1&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;ubuntu 18.04 作为最底层镜像搭建环境&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;1. 进入镜像
+docker run &lt;span class=&quot;nt&quot;&gt;-it&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--gpus&lt;/span&gt; all ubuntu:18.04 /bin/bash
+2. 安装 &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;和 wget
+apt-get update
+apt-get &lt;span class=&quot;nb&quot;&gt;install sudo
+sudo &lt;/span&gt;apt update
+&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;wget
+3. 安装 miniconda
+&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;home/
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+&lt;span class=&quot;nb&quot;&gt;chmod&lt;/span&gt; +x Miniconda3-latest-Linux-x86_64.sh
+./Miniconda3-latest-Linux-x86_64.sh
+4. 安装一些依赖项
+&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt-get &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;libxml2 gcc g++ vim
+
+5. 下载 cuda 并安装
+wget https://developer.download.nvidia.com/compute/cuda/11.6.0/local_installers/cuda_11.6.0_510.39.01_linux.run
+&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;sh cuda_11.6.0_510.39.01_linux.run
+设置环境变量：
+vim ~/.bashrc
+文件最后保存一下路径描述
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;LD_LIBRARY_PATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$LD_LIBRARY_PATH&lt;/span&gt;:/usr/local/cuda-11.6/lib64
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;PATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$PATH&lt;/span&gt;:/usr/local/cuda-11.6/bin
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;CUDA_HOME&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$CUDA_HOME&lt;/span&gt;:/usr/local/cuda-11.6
+更新环境变量
+&lt;span class=&quot;nb&quot;&gt;source&lt;/span&gt; ~/.bashrc
+
+6. cudnn 安装
+https://developer.nvidia.com/rdp/cudnn-archive 网址下载相应的tar文件，deb方式卸载更新起来不太方便，容易出问题。
+解压 &lt;span class=&quot;nb&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-xvJf&lt;/span&gt; cudnn-linux-x86_64-8.4.1.50_cuda11.6-archive.tar.xz
+&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;cudnn-linux-x86_64-8.4.1.50_cuda11.6-archive
+
+拷贝到容器：docker &lt;span class=&quot;nb&quot;&gt;cp &lt;/span&gt;本地文件 容器ID：容器路径
+docker &lt;span class=&quot;nb&quot;&gt;cp &lt;/span&gt;include/cudnn&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.h 容器ID：/usr/local/cuda/include
+docker &lt;span class=&quot;nb&quot;&gt;cp &lt;/span&gt;lib64/libcudnn&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; 容器ID：/usr/local/cuda/lib64
+给予执行权限
+&lt;span class=&quot;nb&quot;&gt;sudo chmod &lt;/span&gt;a+r /usr/local/cuda/include/cudnn&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.h /usr/local/cuda/lib64/libcudnn&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+
+测试cudnn（8.0以后版本）
+&lt;span class=&quot;nb&quot;&gt;cat&lt;/span&gt; /usr/local/cuda/include/cudnn_version.h | &lt;span class=&quot;nb&quot;&gt;grep &lt;/span&gt;CUDNN_MAJOR &lt;span class=&quot;nt&quot;&gt;-A&lt;/span&gt; 2
+
+7. 将JDet_temp 拷贝到容器home文件夹下，并更名JDet
+docker &lt;span class=&quot;nb&quot;&gt;cp &lt;/span&gt;JDet_Temp 容器ID:/home/
+&lt;span class=&quot;nb&quot;&gt;mv &lt;/span&gt;JDet_Temp JDet &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;容器内执行&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+
+8. 配置环境
+&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;JDet
+python &lt;span class=&quot;nt&quot;&gt;-m&lt;/span&gt; pip &lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-r&lt;/span&gt; requirements.txt
+python setup.py develop
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;jittor 所需的额外包以及 DOTA_devkit 的 bulid&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;apt-get update &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; apt-get &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;libgl1 libglib2.0-dev
+
+&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;DOTA_devkit
+python setup.py build_ext &lt;span class=&quot;nt&quot;&gt;--inplace&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;Docker 镜像的加载和保存&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;1. 保存镜像
+$ docker save 镜像名称 | gzip &amp;gt; XXXX-latest.tar.gz
+2. 加载镜像
+$ docker load -i XXXX-latest.tar.gz
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+</description>
+        <pubDate>Sat, 04 Mar 2023 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2023/03/04/Docker.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2023/03/04/Docker.html</guid>
+        
+        <category>Docker</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Awesome Backnone Plan</title>
+        <description>&lt;h1 id=&quot;awesome-backbone-plan&quot;&gt;Awesome Backbone Plan&lt;/h1&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;针对现有 Backbone 的学习笔记&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h5 id=&quot;针对网络结构细微调整和训练策略的研究--bag-of-tricks-for-image-classification-with-convolutional-neural-networks&quot;&gt;针对网络结构细微调整和训练策略的研究  &lt;a href=&quot;https://arxiv.org/pdf/1812.01187.pdf&quot;&gt;Bag of Tricks for Image Classification with Convolutional Neural Networks&lt;/a&gt;&lt;/h5&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Efficient Training&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;em&gt;large-batch training&lt;/em&gt;    对于凸优化问题，随着 batch 的增加其收敛速率会降低，神经网络也会存在这样的问题。
+    &lt;ul&gt;
+      &lt;li&gt;&lt;em&gt;linear scaling learning rate&lt;/em&gt;    增加 batch 时不会改变期望，但方差会减小。换句话说，大的 batch 会减少梯度中的噪声，所以增加学习率沿着梯度方向相反的方向可以加速网络收敛。假设 ResNet-50 的训练以 0.1 &lt;em&gt;learning rate&lt;/em&gt;，256 batch size 为基准，当我们改变训练的 batch 大小时（假设改为b），那么应该调整学习率为 &lt;em&gt;lr=0.1 x b/256&lt;/em&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;em&gt;learning rate warmup&lt;/em&gt;    初始化时整个网络的参数是随机的，远离最终优化后的结果。太大的学习率导致训练初期不稳定，采用学习率升温的策略，即从一个很小的学习率逐渐上升到初始学习率，可稳定初期的训练，便于得到最优的性能。一般用线性升温的学习率策略，假设使用前 m 次迭代，初始的学习率为 a，则每次迭代的学习率为 &lt;em&gt;i · a / m&lt;/em&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;em&gt;zero $\gamma$&lt;/em&gt;    对每一个 resnet 块的最后一个 BN 层的 weight 进行初始化为 0 的操作， 这样所有的块都返回他们的输入，模拟层数较少且更容易训练的初始阶段&lt;/li&gt;
+      &lt;li&gt;&lt;em&gt;No bias decay&lt;/em&gt;    &lt;strong&gt;权重衰减&lt;/strong&gt; 应用于所有可学习参数，weight 和 bias。其就像在所有参数上应用 L2 正则化。仅对 weight 使用正则化可避免过拟合。==（没太理解）==&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;low-precision training&lt;/em&gt;    将模型精度从 FP32 转为 FP16 可将训练速度提升2～3倍，精度不会大幅度降低且有时会有更高的结果。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Model Tweaks&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/resnet_tweak.png&quot; alt=&quot;ResNet architecture and some tweaks&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;em&gt;ResNet-B&lt;/em&gt;    其认为在 block 中第一个 1x1 的卷积使用步长为 2 会丢失觉很大一部分信息，将其移致 3x3 的卷积更为合理。&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;ResNet-C&lt;/em&gt;    因为卷积的计算复成本和其核边长是二次相关的，其将最前面的 7x7 卷积用 3 个 3x3 的卷积替换，以降低其计算成本。具体细节是将通道数变化改为 3 » 32，32 » 32，32  » 64，对应的步长分别是 2，2，1。&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;ResNet-D&lt;/em&gt;    论文中提出的，灵感来源于 &lt;em&gt;ResNet-B&lt;/em&gt; 结构。其发现下采样路径中使用的卷积大小为 1x1，但其步长为 2，这样的卷积会都是一部分信息。在 1x1 卷积的前面加上一个步长为 2 的全局平均池化（GAP）并将 1x1 卷积步长恢复到 1，这样可以在无参数增加、仅增加小部分计算量的前提下提升网络的精度。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;以上消融实验结果如下所示。（采用 &lt;em&gt;Efficient Training&lt;/em&gt; 中所有tricks，需要注意的是&lt;strong&gt;三个 tweak 是逐级叠加的优化&lt;/strong&gt;）&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/resnet_tweak_ablation.png&quot; alt=&quot;resnet_tweak_ablation&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Training Refinements&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Sat, 04 Mar 2023 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2023/03/04/AwesomeBackbonePlan.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2023/03/04/AwesomeBackbonePlan.html</guid>
+        
+        <category>深度学习</category>
+        
+        
+      </item>
+    
+  </channel>
+</rss>
