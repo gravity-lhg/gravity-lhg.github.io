@@ -151,24 +151,28 @@ Author: Ray-Eldath
     
 
     <article class="markdown-body">
-      <h1 id="docker-环境中从零开始搭建-pytorch-环境">Docker 环境中从零开始搭建 Pytorch 环境</h1>
+      <h2 id="ubuntu-1804-作为最底层-docker-镜像从零开始搭建-pytorch-环境">ubuntu 18.04 作为最底层 Docker 镜像，从零开始搭建 Pytorch 环境</h2>
 
 <blockquote>
-  <p>ubuntu 18.04 作为最底层镜像搭建环境</p>
+  <p>ubuntu 18.04 镜像搭建是从 Docker 官网拉取的</p>
 </blockquote>
+
+<p><strong>基本环境安装 (Miniconda, CUDA)</strong></p>
 
 <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. 进入镜像
 docker run <span class="nt">-it</span> <span class="nt">--gpus</span> all ubuntu:18.04 /bin/bash
+
 2. 安装 <span class="nb">sudo </span>和 wget
 apt-get update
 apt-get <span class="nb">install sudo
-sudo </span>apt update
-<span class="nb">sudo </span>apt <span class="nb">install </span>wget
+sudo </span>apt <span class="nb">install </span>wget
+
 3. 安装 miniconda
 <span class="nb">cd </span>home/
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 <span class="nb">chmod</span> +x Miniconda3-latest-Linux-x86_64.sh
 ./Miniconda3-latest-Linux-x86_64.sh
+
 4. 安装一些依赖项
 <span class="nb">sudo </span>apt-get <span class="nb">install </span>libxml2 gcc g++ vim
 
@@ -197,21 +201,26 @@ docker <span class="nb">cp </span>lib64/libcudnn<span class="k">*</span> 容器I
 
 测试cudnn（8.0以后版本）
 <span class="nb">cat</span> /usr/local/cuda/include/cudnn_version.h | <span class="nb">grep </span>CUDNN_MAJOR <span class="nt">-A</span> 2
+</code></pre></div></div>
 
-7. 将JDet_temp 拷贝到容器home文件夹下，并更名JDet
-docker <span class="nb">cp </span>JDet_Temp 容器ID:/home/
-<span class="nb">mv </span>JDet_Temp JDet <span class="o">(</span>容器内执行<span class="o">)</span>
+<p><strong>将 jittor 拷入环境并安装</strong></p>
 
-8. 配置环境
-<span class="nb">cd </span>JDet
-python <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nt">-r</span> requirements.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. 将JDet_temp 拷贝到容器home文件夹下，并更名JDet
+docker cp JDet_Temp 容器ID:/home/
+mv JDet_Temp JDet (容器内执行)
+
+2. 配置环境
+cd JDet
+python -m pip install -r requirements.txt
 python setup.py develop
 </code></pre></div></div>
 
-<p><strong>jittor 所需的额外包以及 DOTA_devkit 的 bulid</strong></p>
+<p><strong>安装 jittor 所需的额外包以及 DOTA_devkit 的 bulid</strong></p>
 
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt-get update <span class="o">&amp;&amp;</span> apt-get <span class="nb">install </span>libgl1 libglib2.0-dev
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. 安装依赖包
+apt-get update <span class="o">&amp;&amp;</span> apt-get <span class="nb">install </span>libgl1 libglib2.0-dev
 
+2. DOTA_devkit 中 bulid 安装
 <span class="nb">cd </span>DOTA_devkit
 python setup.py build_ext <span class="nt">--inplace</span>
 </code></pre></div></div>
@@ -220,6 +229,7 @@ python setup.py build_ext <span class="nt">--inplace</span>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. 保存镜像
 $ docker save 镜像名称 | gzip &gt; XXXX-latest.tar.gz
+
 2. 加载镜像
 $ docker load -i XXXX-latest.tar.gz
 </code></pre></div></div>
@@ -269,7 +279,7 @@ $ docker load -i XXXX-latest.tar.gz
         <a href="/2023/03/04/AwesomeBackbonePlan.html" class="read-next-link"></a>
           <section>
             <span>Awesome Backnone Plan</span>
-            <p>Awesome Backbone Plan</p>
+            <p>主干网络大汇总</p>
           </section>
           
           <div class="filter"></div>

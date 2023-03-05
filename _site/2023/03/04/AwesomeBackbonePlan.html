@@ -8,7 +8,7 @@
     <title>Awesome Backnone Plan - 刘浩光的个人博客</title>
     <meta name="author"  content="刘浩光">
     <meta name="description" content="Awesome Backnone Plan">
-    <meta name="keywords"  content="深度学习">
+    <meta name="keywords"  content="深度学习, 论文阅读">
     <!-- Open Graph -->
     <meta property="og:title" content="Awesome Backnone Plan - 刘浩光的个人博客">
     <meta property="og:type" content="website">
@@ -133,6 +133,8 @@ Author: Ray-Eldath
           
             <a href="/tags.html#%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0" class="post-tag">深度学习</a>
           
+            <a href="/tags.html#%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB" class="post-tag">论文阅读</a>
+          
         
       </div>
       <h1>Awesome Backnone Plan</h1>
@@ -151,43 +153,48 @@ Author: Ray-Eldath
     
 
     <article class="markdown-body">
-      <h1 id="awesome-backbone-plan">Awesome Backbone Plan</h1>
+      <h2 id="主干网络大汇总">主干网络大汇总</h2>
 
 <blockquote>
   <p>针对现有 Backbone 的学习笔记</p>
 </blockquote>
 
-<h5 id="针对网络结构细微调整和训练策略的研究--bag-of-tricks-for-image-classification-with-convolutional-neural-networks">针对网络结构细微调整和训练策略的研究  <a href="https://arxiv.org/pdf/1812.01187.pdf">Bag of Tricks for Image Classification with Convolutional Neural Networks</a></h5>
+<h3 id="针对网络结构细微调整和训练策略的研究">针对网络结构细微调整和训练策略的研究</h3>
+<p>论文链接地址：<a href="https://arxiv.org/pdf/1812.01187.pdf">Bag of Tricks for Image Classification with Convolutional Neural Networks</a></p>
 
-<p><strong><em>Efficient Training</em></strong></p>
+<p><strong>Efficient Training</strong></p>
 
 <ul>
-  <li><em>large-batch training</em>    对于凸优化问题，随着 batch 的增加其收敛速率会降低，神经网络也会存在这样的问题。
+  <li><strong>large-batch training</strong> ｜ 对于凸优化问题，随着 batch 的增加其收敛速率会降低，神经网络也会存在这样的问题。
     <ul>
-      <li><em>linear scaling learning rate</em>    增加 batch 时不会改变期望，但方差会减小。换句话说，大的 batch 会减少梯度中的噪声，所以增加学习率沿着梯度方向相反的方向可以加速网络收敛。假设 ResNet-50 的训练以 0.1 <em>learning rate</em>，256 batch size 为基准，当我们改变训练的 batch 大小时（假设改为b），那么应该调整学习率为 <em>lr=0.1 x b/256</em></li>
-      <li><em>learning rate warmup</em>    初始化时整个网络的参数是随机的，远离最终优化后的结果。太大的学习率导致训练初期不稳定，采用学习率升温的策略，即从一个很小的学习率逐渐上升到初始学习率，可稳定初期的训练，便于得到最优的性能。一般用线性升温的学习率策略，假设使用前 m 次迭代，初始的学习率为 a，则每次迭代的学习率为 <em>i · a / m</em></li>
-      <li><em>zero $\gamma$</em>    对每一个 resnet 块的最后一个 BN 层的 weight 进行初始化为 0 的操作， 这样所有的块都返回他们的输入，模拟层数较少且更容易训练的初始阶段</li>
-      <li><em>No bias decay</em>    <strong>权重衰减</strong> 应用于所有可学习参数，weight 和 bias。其就像在所有参数上应用 L2 正则化。仅对 weight 使用正则化可避免过拟合。==（没太理解）==</li>
+      <li><strong>linear scaling learning rate</strong><br />
+增加 batch 时不会改变期望，但方差会减小。换句话说，大的 batch 会减少梯度中的噪声，所以增加学习率沿着梯度方向相反的方向可以加速网络收敛。假设 ResNet-50 的训练以 0.1 <em>learning rate</em>，256 batch size 为基准，当我们改变训练的 batch 大小时（假设改为b），那么应该调整学习率为 <em>lr=0.1 x b/256</em></li>
+      <li><strong>learning rate warmup</strong><br />
+初始化时整个网络的参数是随机的，远离最终优化后的结果。太大的学习率导致训练初期不稳定，采用学习率升温的策略，即从一个很小的学习率逐渐上升到初始学习率，可稳定初期的训练，便于得到最优的性能。一般用线性升温的学习率策略，假设使用前 m 次迭代，初始的学习率为 a，则每次迭代的学习率为 i · a / m</li>
+      <li><strong>zero $\gamma$</strong><br />
+对每一个 resnet 块的最后一个 BN 层的 weight 进行初始化为 0 的操作， 这样所有的块都返回他们的输入，模拟层数较少且更容易训练的初始阶段</li>
+      <li><strong>No bias decay</strong><br />
+权重衰减应用于所有可学习参数，weight 和 bias。其就像在所有参数上应用 L2 正则化。仅对 weight 使用正则化可避免过拟合。==（没太理解）==</li>
     </ul>
   </li>
-  <li><em>low-precision training</em>    将模型精度从 FP32 转为 FP16 可将训练速度提升2～3倍，精度不会大幅度降低且有时会有更高的结果。</li>
+  <li><strong>low-precision training</strong> ｜ 将模型精度从 FP32 转为 FP16 可将训练速度提升 2～3 倍，精度不会大幅度降低且有时会有更高的结果。</li>
 </ul>
 
-<p><strong><em>Model Tweaks</em></strong></p>
+<p><strong>Model Tweaks</strong></p>
 
 <p><img src="/assets/images/resnet_tweak.png" alt="ResNet architecture and some tweaks" /></p>
 
 <ul>
-  <li><em>ResNet-B</em>    其认为在 block 中第一个 1x1 的卷积使用步长为 2 会丢失觉很大一部分信息，将其移致 3x3 的卷积更为合理。</li>
-  <li><em>ResNet-C</em>    因为卷积的计算复成本和其核边长是二次相关的，其将最前面的 7x7 卷积用 3 个 3x3 的卷积替换，以降低其计算成本。具体细节是将通道数变化改为 3 » 32，32 » 32，32  » 64，对应的步长分别是 2，2，1。</li>
-  <li><em>ResNet-D</em>    论文中提出的，灵感来源于 <em>ResNet-B</em> 结构。其发现下采样路径中使用的卷积大小为 1x1，但其步长为 2，这样的卷积会都是一部分信息。在 1x1 卷积的前面加上一个步长为 2 的全局平均池化（GAP）并将 1x1 卷积步长恢复到 1，这样可以在无参数增加、仅增加小部分计算量的前提下提升网络的精度。</li>
+  <li><strong>ResNet-B</strong> ｜  其认为在 block 中第一个 1x1 的卷积使用步长为 2 会丢失觉很大一部分信息，将其移致 3x3 的卷积更为合理。</li>
+  <li><strong>ResNet-C</strong> ｜  因为卷积的计算复成本和其核边长是二次相关的，其将最前面的 7x7 卷积用 3 个 3x3 的卷积替换，以降低其计算成本。具体细节是将通道数变化改为 3 » 32，32 » 32，32 » 64，对应的步长分别是 2，2，1。</li>
+  <li><strong>ResNet-D</strong> ｜  论文中提出的，灵感来源于 <em>ResNet-B</em> 结构。其发现下采样路径中使用的卷积大小为 1x1，但其步长为 2，这样的卷积会都是一部分信息。在 1x1 卷积的前面加上一个步长为 2 的全局平均池化（GAP）并将 1x1 卷积步长恢复到 1，这样可以在无参数增加、仅增加小部分计算量的前提下提升网络的精度。</li>
 </ul>
 
-<p>以上消融实验结果如下所示。（采用 <em>Efficient Training</em> 中所有tricks，需要注意的是<strong>三个 tweak 是逐级叠加的优化</strong>）</p>
+<p>以上消融实验结果如下所示。（采用 Efficient Training 中所有 tricks，需要注意的是<strong>三个 tweak 是逐级叠加的优化</strong>）</p>
 
 <p><img src="/assets/images/resnet_tweak_ablation.png" alt="resnet_tweak_ablation" /></p>
 
-<p><strong><em>Training Refinements</em></strong></p>
+<p><strong>Training Refinements</strong></p>
 
 
     </article>
@@ -232,7 +239,7 @@ Author: Ray-Eldath
         <a href="/2023/03/04/Docker.html" class="read-next-link"></a>
         <section>
           <span>Docker 环境中从零开始搭建 Pytorch 环境</span>
-          <p>Docker 环境中从零开始搭建 Pytorch 环境</p>
+          <p>ubuntu 18.04 作为最底层 Docker 镜像，从零开始搭建 Pytorch 环境</p>
         </section>
         
         <div class="filter"></div>
