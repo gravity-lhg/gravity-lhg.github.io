@@ -5,9 +5,170 @@
     <description>为天地立心, 为生民立命, 为往圣继绝学, 为万世开太平</description>
     <link>http://localhost:4000//</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 05 Mar 2023 11:22:30 +0800</pubDate>
-    <lastBuildDate>Sun, 05 Mar 2023 11:22:30 +0800</lastBuildDate>
+    <pubDate>Mon, 06 Mar 2023 16:16:48 +0800</pubDate>
+    <lastBuildDate>Mon, 06 Mar 2023 16:16:48 +0800</lastBuildDate>
     <generator>Jekyll v4.3.2</generator>
+    
+      <item>
+        <title>Region Proposal by Guided Anchoring</title>
+        <description>&lt;h2 id=&quot;一种利用语义特征引导的锚框自适应方法ga&quot;&gt;一种利用语义特征引导的锚框自适应方法（GA）&lt;/h2&gt;
+
+&lt;h3 id=&quot;1-introduction&quot;&gt;1. Introduction&lt;/h3&gt;
+
+&lt;p&gt;合理的锚框设计有两个一般规则：对齐和一致性。对齐是指：使用卷积特征作为锚框表示时，锚框中心需要与特征图像素很好地对齐。一致性是指：在特征图不同位置上，感受野和语义范围应该与对应锚框的规模和形状一致。&lt;/p&gt;
+
+&lt;p&gt;对于大多数 anchor_based 的检测方法，anchors 由统一方案定义，其中特征图中的每个位置都与 k 个具有预定义比例和纵横比的 anchors 相关联。均匀锚框预设方案并不一定是锚框的最佳制备方案（&lt;strong&gt;次优&lt;/strong&gt;），这种方案可能导致两个问题；&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;必须为不同的问题预先定义一组固大小、定长宽比的整齐锚框，这种设计可能会妨碍检测器的速度和准确性。&lt;/li&gt;
+  &lt;li&gt;为了保持足够高的提议查全率（recall），需要预设大量的锚框，这样会造成锚框大多对应于与兴趣对象无关的假候选点。同时，大量的锚框会导致大量的计算成本，特别是当管道在提案阶段涉及一个重分类器时。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;由于观察到物体不是均匀分布在图像上。物体的尺度也与图像内容、位置和场景的几何形状密切相关。根据这种观察，&lt;strong&gt;将采用两步生成稀疏锚框：&lt;/strong&gt;首先识别可能包含对象的子区域，然后确定不同位置的形状。（引导锚定模块）&lt;/p&gt;
+
+&lt;p&gt;可学习锚指锚框的比例和纵横比是可变的，它会打破锚框设计的一致性规则。为了使得可学习锚框得以精确的分类和回归，不同的特征图像素必须学习适应相应锚框的自适应表示。（锚框几何调整模块）&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;本文贡献主要有以下四点：&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;提出了一种新的锚定方案，该方案能够预测非均匀和任意形状的锚，而不是密集和预定义的锚&lt;/li&gt;
+  &lt;li&gt;用两个因式条件分布构造联合锚分布，并设计两个模块分别对其进行建模&lt;/li&gt;
+  &lt;li&gt;研究了将特征与相应锚框对齐的重要性，并设计了基于锚框形状的特征自适应模块来细化特征&lt;/li&gt;
+  &lt;li&gt;研究了 two-stage 检测器的高质量提议的使用，并提出了一种提高训练模型性能的方案&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;2-methodology&quot;&gt;2. Methodology&lt;/h3&gt;
+
+&lt;p&gt;整个工作的目标是开发一个更有效的锚定方案，以安排具有可学习形状的锚框，考虑到物体的位置和形状的非均匀分布。&lt;/p&gt;
+
+&lt;p&gt;物体的位置和形状可以用 $(x, y, w, h)$ 形式的4元组来表示，其中 $(x, y)$ 是中心的空间坐标，$w$ 是宽度，$h$ 是高度。假设从给定的图像 $I$ 中画出一个物体，那么它的位置和形状可以被认为遵循以 $I$ 为条件的分布，公式表示为：&lt;/p&gt;
+
+\[p(x,y,w,h|I) = p(x,y|I)p(w,h|x,y,I)\]
+
+&lt;p&gt;这种分解得到两个重要的直觉：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;给定一幅图像，物体可能只存在于某些区域&lt;/li&gt;
+  &lt;li&gt;物体的形状，即尺寸和纵横比，与它的位置密切相关&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;根据上述两个直觉，设计出一个锚框生成模块（自适应），如下图所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/GA-framework.png&quot; alt=&quot;GA-framework&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;首先将各层特征图 $F_i$ 送入位置预测分支和形状预测分支，分别产生一个物体可能存在的概率图和位置相关的形状。再通过选择位置概率高于某阈值的位置和每个所选位置最可能的形状来生成一组锚框。&lt;/p&gt;
+
+&lt;p&gt;由于锚框的形状可能不同，不同位置的特征应该捕获不同范围内的视觉内容（打破一致性原则）。考虑到这一点，进一步引入了特征自适应模块，该模块根据锚框形状对特征进行自适应。&lt;/p&gt;
+
+&lt;p&gt;==请注意，在设计中，锚生成参数在所有涉及的特征级别上共享，因此该方案是参数高效的。==&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;2.1 Anchor Location Prediction&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;如图 1 所示，概率图 $p(·｜F_i)$ 的大小与特征图 $F_i$ 大小一致，通道数为1。其中每个 $p(i,j｜F_i)$  对应于原图坐标 $(\frac{i+1}{2}s,\frac{j+1}{2}s)$，其中 s 为该特征图的步长，该项的值表示物体的中心存在于该位置的概率。&lt;/p&gt;
+
+&lt;p&gt;实现中，该概率图是由 $N_L$ 网络进行预测。网络将 $1 \times 1$ 卷积应用于特征图 $F_i$，获得物体性分数 map，然后通过 sigmoid 函数将其转化为概率值。（一层 Conv + sigmoid 在效率和准确度之间取得了很好的平衡）&lt;/p&gt;
+
+&lt;p&gt;通过生成的概率图，可以选择相对概率值高的阈值 $\epsilon_L$ 来确定可能寻在物体的区域（保持相同召回率情况下可过滤掉90%的区域）。由于不需要考虑那些被排除的区域，我们将后续的卷积层替换为掩码卷积，以获得更有效的推理。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;2.2 Anchor Shape Prediction&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;在确定物体可能的位置之后，下一步是确定每个位置上可能存在的物体的形状。这是由锚的形状预测分支完成的，如图1所示。这个分支与传统的边界盒回归有很大的不同，因为它不会改变锚框的位置，也不会导致锚框和锚框特征之间的错位。具体来说，给定一个特征图FI，该分支将预测每个位置的最佳形状 (w, h)，即使之达到与最近的 ground-truth 包围框的最高覆盖率的形状。&lt;/p&gt;
+
+&lt;p&gt;根据经验发现，直接预测这两个数字是不稳定的，因为它们的范围很大。相反，采用以下转换效果更好：&lt;/p&gt;
+
+\[w=\sigma \cdot s \cdot e^{dw}, \space \space \space \space h=\sigma \cdot s \cdot e^{dh}\]
+
+&lt;p&gt;其中 s 为步长，$\sigma$ 为经验比例因子（一般设置 $\sigma$ = 8）。这种非线性转换将将输出空间从近似 $[0, 1000]$ 投影到$[-1, 1]$，从而更容易且稳定的学习。&lt;/p&gt;
+
+&lt;p&gt;实现中，该形状由 $N_S$ 网络进行预测。网络将 $1 \times 1$ 卷积应用于特征图 $F_i$，生成包含 $dw$ 和 $dh$ 的双通道映射，并通过公式2进行转换。&lt;/p&gt;
+
+&lt;p&gt;这种设计与传统的锚定方案有本质上的不同，因为每个位置只与动态预测形状的一个锚框相关联，而不是与一组预定义形状的锚框相关联。实验表明，由于位置和形状之间的密切关系，此方案可以获得比基线方案（统一均匀生成方案）更高的召回率。由于它允许任意的纵横比（可学习性），此方案可以更好地捕捉那些极高或极宽的物体。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;2.3 Anchor-Guided Feature Adaptation&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;未完待续。。。&lt;/p&gt;
+
+&lt;h3 id=&quot;3-experiments&quot;&gt;3. Experiments&lt;/h3&gt;
+
+</description>
+        <pubDate>Mon, 06 Mar 2023 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2023/03/06/RA-RPN.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2023/03/06/RA-RPN.html</guid>
+        
+        <category>深度学习</category>
+        
+        <category>论文阅读</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Binary Search Algorithm</title>
+        <description>&lt;h2 id=&quot;二分查找算法的-c-实现与-stl-库调用实现&quot;&gt;二分查找算法的 C++ 实现与 STL 库调用实现&lt;/h2&gt;
+
+&lt;p&gt;二分查找（折半查找）即二分搜索，是一种在&lt;strong&gt;有序数组&lt;/strong&gt;中查找某一特定元素的搜索算法。二分查找有两个要求，一个是数列有序，另一个是数列使用顺序存储结构，例如数组。其时间复杂度为 $O(log_2 n)$。&lt;/p&gt;
+
+&lt;p&gt;使用 C++ 实现代码如下&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-C++&quot;&gt;#include &amp;lt;iostream&amp;gt;
+using namespace std;
+
+// 迭代二分查找
+int iterationBinarySearch(int *a, int x) {
+  	int left = 0;
+    int right = n - 1;
+    while(left &amp;lt;= right) {
+        int mid = (left + right) / 2;
+        if(x &amp;gt; a[mid]) left = mid + 1;
+        else if(x &amp;lt; a[mid]) right = mid - 1;
+      	else return mid;
+    }
+    return -1;
+}
+
+// 递归二分查找
+int recurisonBinarySearch(int *a, int left, int right, int x) {
+    if(left &amp;gt; right) return -1;
+    int mid = (left + right) / 2;
+  	if(x &amp;gt; a[mid]) return recurisonBinarySearch(a, mid + 1, right, x);
+  	else if(x &amp;lt; a[mid]) return recurisonBinarySearch(a, left, mid - 1, x);
+    else return mid;
+}
+
+int main() {
+  	int a[10] = {1, 5, 9, 14, 17, 21, 25, 30, 37, 40};
+  	iterationBinarySearch(a, 30);
+  	recurisonBinarySearch(a, 0, 9, 30);
+  	return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;在 STL 中，也提供了相应的函数接口，使用前进行头文件引入：&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;#include &amp;lt;algorithm&amp;gt;&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-C++&quot;&gt;#include &amp;lt;iostream&amp;gt;
+#include &amp;lt;algorithm&amp;gt;
+using namespace std;
+
+int main(){
+  	int a[10] = {1, 5, 9, 14, 17, 21, 25, 30, 37, 40};
+  	binary_search(a, a+9, 30);	// 参数列表（首地址，尾地址，查找元素），返回bool类型
+  	
+  	lower_bound(a, a+9, 9);		// 返回第一个大于或等于某元素的位置(地址)，pos-a 为所需要的索引
+  	upper_bound(a, a+9, 9);		// 返回第一个大于某元素的位置(地址)，pos-a 为所需要的索引
+  	return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lower_bound&lt;/code&gt; 和 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;upper_bound&lt;/code&gt; 都在 &lt;strong&gt;前闭后开&lt;/strong&gt; 的区间中进行二分查找，如果所有元素均小于等于（lower）或小于（upper）该元素，则返回 last 位置。（&lt;strong&gt;&lt;em&gt;注意：&lt;/em&gt;&lt;/strong&gt; 数组会发生越界）&lt;/p&gt;
+</description>
+        <pubDate>Sun, 05 Mar 2023 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2023/03/05/binarySearch.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2023/03/05/binarySearch.html</guid>
+        
+        <category>算法</category>
+        
+        
+      </item>
     
       <item>
         <title>Docker 环境中从零开始搭建 Pytorch 环境</title>

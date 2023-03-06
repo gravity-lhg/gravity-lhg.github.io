@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Region Proposal by Guided Anchoring - 刘浩光的个人博客</title>
+    <meta name="author"  content="刘浩光">
+    <meta name="description" content="Region Proposal by Guided Anchoring">
+    <meta name="keywords"  content="深度学习, 论文阅读">
+    <!-- Open Graph -->
+    <meta property="og:title" content="Region Proposal by Guided Anchoring - 刘浩光的个人博客">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:4000/2023/03/06/RA-RPN.html">
+    <meta property="og:description" content="为天地立心, 为生民立命, 为往圣继绝学, 为万世开太平">
+    <meta property="og:site_name" content="刘浩光的个人博客">
+    <link rel="stylesheet" href="//cdn.staticfile.org/normalize/6.0.0/normalize.min.css">
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_roc50gemkxpw4s4i.css">
+    <link rel="stylesheet" href="/assets/css/github-markdown.css">
+    <link rel="stylesheet" href="/assets/css/prism.css">
+    <link rel="stylesheet" href="/assets/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/app.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+	
+	<!--
+Author: Ray-Eldath
+refer to:
+ - http://docs.mathjax.org/en/latest/options/index.html
+-->
+
+	<script type="text/javascript" async src="https://cdn.bootcss.com/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+	
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+		jax: ["input/TeX", "output/HTML-CSS"],
+		tex2jax: {
+			inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+			displayMath: [ ["$$", "$$"], ["\\[","\\]"] ],
+			skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+		},
+		"HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+      });
+    </script>
+
+
+	
+    <!--
+Author: Ray-Eldath
+-->
+<style>
+    .markdown-body .anchor{
+        float: left;
+        margin-top: -8px;
+        margin-left: -20px;
+        padding-right: 4px;
+        line-height: 1;
+        opacity: 0;
+    }
+    
+    .markdown-body .anchor .anchor-icon{
+        font-size: 15px
+    }
+</style>
+<script>
+    $(document).ready(function() {
+        let nodes = document.querySelector(".markdown-body").querySelectorAll("h1,h2,h3")
+        for(let node of nodes) {
+            var anchor = document.createElement("a")
+            var anchorIcon = document.createElement("i")
+            anchorIcon.setAttribute("class", "fa fa-anchor fa-lg anchor-icon")
+            anchorIcon.setAttribute("aria-hidden", true)
+            anchor.setAttribute("class", "anchor")
+            anchor.setAttribute("href", "#" + node.getAttribute("id"))
+            
+            anchor.onmouseover = function() {
+                this.style.opacity = "0.4"
+            }
+            
+            anchor.onmouseout = function() {
+                this.style.opacity = "0"
+            }
+            
+            anchor.appendChild(anchorIcon)
+            node.appendChild(anchor)
+        }
+    })
+</script>
+	
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?671e6ffb306c963dfa227c8335045b4f";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+		
+        })();
+    </script>
+
+</head>
+
+
+<body>
+  <!--[if lt IE 10]>
+<div class="alert-danger" role="alert">你的浏览器实在太太太旧了，放学别走，升级完浏览器再说！<a target="_blank" class="alert-link" href="http://browsehappy.com">立即升级</a></div>
+<![endif]-->
+  <input id="nm-switch" type="hidden" value="true"> <header class="g-header">
+    <div class="g-logo">
+      <a href="/"></a>
+    </div>
+    <i id="menu-toggle" class="iconfont icon-menu"></i>
+    <nav class="g-nav">
+        <ul>
+            
+            <li><a href="/">home</a></li>
+            
+            <li><a href="/tags.html">tags</a></li>
+            
+        </ul>
+    </nav>
+</header>
+
+
+  <header
+    class="g-banner post-header post-pattern-circuitBoard bgcolor-default "
+    data-theme="default"
+  >
+    <div class="post-wrapper">
+      <div class="post-tags">
+        
+          
+            <a href="/tags.html#%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0" class="post-tag">深度学习</a>
+          
+            <a href="/tags.html#%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB" class="post-tag">论文阅读</a>
+          
+        
+      </div>
+      <h1>Region Proposal by Guided Anchoring</h1>
+      <div class="post-meta">
+        <span class="post-meta-item"><i class="iconfont icon-author"></i>刘浩光</span>
+        <time class="post-meta-item" datetime="23-03-06"><i class="iconfont icon-date"></i>06 Mar 2023</time>
+      </div>
+    </div>
+    
+    <div class="filter"></div>
+      <div class="post-cover" style="background: url('/assets/images/GA-RPN.png') center no-repeat; background-size: cover;"></div>
+    
+  </header>
+
+  <div class="post-content visible">
+    
+
+    <article class="markdown-body">
+      <h2 id="一种利用语义特征引导的锚框自适应方法ga">一种利用语义特征引导的锚框自适应方法（GA）</h2>
+
+<h3 id="1-introduction">1. Introduction</h3>
+
+<p>合理的锚框设计有两个一般规则：对齐和一致性。对齐是指：使用卷积特征作为锚框表示时，锚框中心需要与特征图像素很好地对齐。一致性是指：在特征图不同位置上，感受野和语义范围应该与对应锚框的规模和形状一致。</p>
+
+<p>对于大多数 anchor_based 的检测方法，anchors 由统一方案定义，其中特征图中的每个位置都与 k 个具有预定义比例和纵横比的 anchors 相关联。均匀锚框预设方案并不一定是锚框的最佳制备方案（<strong>次优</strong>），这种方案可能导致两个问题；</p>
+
+<ul>
+  <li>必须为不同的问题预先定义一组固大小、定长宽比的整齐锚框，这种设计可能会妨碍检测器的速度和准确性。</li>
+  <li>为了保持足够高的提议查全率（recall），需要预设大量的锚框，这样会造成锚框大多对应于与兴趣对象无关的假候选点。同时，大量的锚框会导致大量的计算成本，特别是当管道在提案阶段涉及一个重分类器时。</li>
+</ul>
+
+<p>由于观察到物体不是均匀分布在图像上。物体的尺度也与图像内容、位置和场景的几何形状密切相关。根据这种观察，<strong>将采用两步生成稀疏锚框：</strong>首先识别可能包含对象的子区域，然后确定不同位置的形状。（引导锚定模块）</p>
+
+<p>可学习锚指锚框的比例和纵横比是可变的，它会打破锚框设计的一致性规则。为了使得可学习锚框得以精确的分类和回归，不同的特征图像素必须学习适应相应锚框的自适应表示。（锚框几何调整模块）</p>
+
+<p><strong>本文贡献主要有以下四点：</strong></p>
+
+<ol>
+  <li>提出了一种新的锚定方案，该方案能够预测非均匀和任意形状的锚，而不是密集和预定义的锚</li>
+  <li>用两个因式条件分布构造联合锚分布，并设计两个模块分别对其进行建模</li>
+  <li>研究了将特征与相应锚框对齐的重要性，并设计了基于锚框形状的特征自适应模块来细化特征</li>
+  <li>研究了 two-stage 检测器的高质量提议的使用，并提出了一种提高训练模型性能的方案</li>
+</ol>
+
+<h3 id="2-methodology">2. Methodology</h3>
+
+<p>整个工作的目标是开发一个更有效的锚定方案，以安排具有可学习形状的锚框，考虑到物体的位置和形状的非均匀分布。</p>
+
+<p>物体的位置和形状可以用 $(x, y, w, h)$ 形式的4元组来表示，其中 $(x, y)$ 是中心的空间坐标，$w$ 是宽度，$h$ 是高度。假设从给定的图像 $I$ 中画出一个物体，那么它的位置和形状可以被认为遵循以 $I$ 为条件的分布，公式表示为：</p>
+
+\[p(x,y,w,h|I) = p(x,y|I)p(w,h|x,y,I)\]
+
+<p>这种分解得到两个重要的直觉：</p>
+
+<ol>
+  <li>给定一幅图像，物体可能只存在于某些区域</li>
+  <li>物体的形状，即尺寸和纵横比，与它的位置密切相关</li>
+</ol>
+
+<p>根据上述两个直觉，设计出一个锚框生成模块（自适应），如下图所示：</p>
+
+<p><img src="/assets/images/GA-framework.png" alt="GA-framework" /></p>
+
+<p>首先将各层特征图 $F_i$ 送入位置预测分支和形状预测分支，分别产生一个物体可能存在的概率图和位置相关的形状。再通过选择位置概率高于某阈值的位置和每个所选位置最可能的形状来生成一组锚框。</p>
+
+<p>由于锚框的形状可能不同，不同位置的特征应该捕获不同范围内的视觉内容（打破一致性原则）。考虑到这一点，进一步引入了特征自适应模块，该模块根据锚框形状对特征进行自适应。</p>
+
+<p>==请注意，在设计中，锚生成参数在所有涉及的特征级别上共享，因此该方案是参数高效的。==</p>
+
+<p><strong>2.1 Anchor Location Prediction</strong></p>
+
+<p>如图 1 所示，概率图 $p(·｜F_i)$ 的大小与特征图 $F_i$ 大小一致，通道数为1。其中每个 $p(i,j｜F_i)$  对应于原图坐标 $(\frac{i+1}{2}s,\frac{j+1}{2}s)$，其中 s 为该特征图的步长，该项的值表示物体的中心存在于该位置的概率。</p>
+
+<p>实现中，该概率图是由 $N_L$ 网络进行预测。网络将 $1 \times 1$ 卷积应用于特征图 $F_i$，获得物体性分数 map，然后通过 sigmoid 函数将其转化为概率值。（一层 Conv + sigmoid 在效率和准确度之间取得了很好的平衡）</p>
+
+<p>通过生成的概率图，可以选择相对概率值高的阈值 $\epsilon_L$ 来确定可能寻在物体的区域（保持相同召回率情况下可过滤掉90%的区域）。由于不需要考虑那些被排除的区域，我们将后续的卷积层替换为掩码卷积，以获得更有效的推理。</p>
+
+<p><strong>2.2 Anchor Shape Prediction</strong></p>
+
+<p>在确定物体可能的位置之后，下一步是确定每个位置上可能存在的物体的形状。这是由锚的形状预测分支完成的，如图1所示。这个分支与传统的边界盒回归有很大的不同，因为它不会改变锚框的位置，也不会导致锚框和锚框特征之间的错位。具体来说，给定一个特征图FI，该分支将预测每个位置的最佳形状 (w, h)，即使之达到与最近的 ground-truth 包围框的最高覆盖率的形状。</p>
+
+<p>根据经验发现，直接预测这两个数字是不稳定的，因为它们的范围很大。相反，采用以下转换效果更好：</p>
+
+\[w=\sigma \cdot s \cdot e^{dw}, \space \space \space \space h=\sigma \cdot s \cdot e^{dh}\]
+
+<p>其中 s 为步长，$\sigma$ 为经验比例因子（一般设置 $\sigma$ = 8）。这种非线性转换将将输出空间从近似 $[0, 1000]$ 投影到$[-1, 1]$，从而更容易且稳定的学习。</p>
+
+<p>实现中，该形状由 $N_S$ 网络进行预测。网络将 $1 \times 1$ 卷积应用于特征图 $F_i$，生成包含 $dw$ 和 $dh$ 的双通道映射，并通过公式2进行转换。</p>
+
+<p>这种设计与传统的锚定方案有本质上的不同，因为每个位置只与动态预测形状的一个锚框相关联，而不是与一组预定义形状的锚框相关联。实验表明，由于位置和形状之间的密切关系，此方案可以获得比基线方案（统一均匀生成方案）更高的召回率。由于它允许任意的纵横比（可学习性），此方案可以更好地捕捉那些极高或极宽的物体。</p>
+
+<p><strong>2.3 Anchor-Guided Feature Adaptation</strong></p>
+
+<p>未完待续。。。</p>
+
+<h3 id="3-experiments">3. Experiments</h3>
+
+
+    </article>
+
+    
+    <div class="social-share-wrapper">
+      <div class="social-share"></div>
+    </div>
+    
+  </div>
+
+  <section class="author-detail">
+    <section class="post-footer-item author-card">
+      <div class="avatar">
+        <img src="/assets/icons/icon.jpg" alt="">
+      </div>
+      <div class="author-name" rel="author">刘浩光</div>
+      <div class="bio">
+        <p>CVer  深度学习者</p>
+      </div>
+      
+      <ul class="sns-links">
+        
+        <li>
+          <a href="//github.com/gravity-lhg" target="_blank">
+                    <i class="iconfont icon-github"></i>
+                </a>
+        </li>
+        
+        <li>
+          <a href="//zhihu.com/people/gravity-74-50" target="_blank">
+                    <i class="iconfont icon-zhihu"></i>
+                </a>
+        </li>
+        
+      </ul>
+      
+    </section>
+    <section class="post-footer-item read-next">
+      
+
+      
+      <div class="read-next-item">
+        <a href="/2023/03/05/binarySearch.html" class="read-next-link"></a>
+          <section>
+            <span>Binary Search Algorithm</span>
+            <p>二分查找算法的 C++ 实现与 STL 库调用实现</p>
+          </section>
+          
+          <div class="filter"></div>
+          <img src="/assets/images/binary-search.png" alt="">
+          
+      </div>
+      
+    </section>
+    
+    <section class="post-footer-item comment">
+      <div id="disqus_thread"></div>
+      <div id="gitalk_container"></div>
+    </section>
+  </section>
+
+  <footer class="g-footer">
+  <section>刘浩光的个人博客 ©
+  
+  
+  2023
+  </section>
+  <section>Powered by <a href="//jekyllrb.com">Jekyll</a></section>
+</footer>
+
+
+  <script src="/assets/js/social-share.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+  <script>
+    socialShare('.social-share', {
+      sites: [
+        
+          'wechat'
+          ,
+          
+        
+          'weibo'
+          ,
+          
+        
+          'douban'
+          ,
+          
+        
+          'twitter'
+          
+        
+      ],
+      wechatQrcodeTitle: "分享到微信朋友圈",
+      wechatQrcodeHelper: '<p>扫码后点击右上角</p><p>将本文分享至朋友圈</p>'
+    });
+  </script>
+
+  
+	
+  
+
+  <script src="/assets/js/prism.js"></script>
+  <script src="/assets/js/index.min.js"></script>
+</body>
+
+</html>
