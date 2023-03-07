@@ -5,13 +5,17 @@
     <description>为天地立心, 为生民立命, 为往圣继绝学, 为万世开太平</description>
     <link>http://localhost:4000//</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 06 Mar 2023 16:16:48 +0800</pubDate>
-    <lastBuildDate>Mon, 06 Mar 2023 16:16:48 +0800</lastBuildDate>
+    <pubDate>Tue, 07 Mar 2023 14:54:45 +0800</pubDate>
+    <lastBuildDate>Tue, 07 Mar 2023 14:54:45 +0800</lastBuildDate>
     <generator>Jekyll v4.3.2</generator>
     
       <item>
         <title>Region Proposal by Guided Anchoring</title>
         <description>&lt;h2 id=&quot;一种利用语义特征引导的锚框自适应方法ga&quot;&gt;一种利用语义特征引导的锚框自适应方法（GA）&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;文章发表于 CVPR 2019.&lt;/p&gt;
+&lt;/blockquote&gt;
 
 &lt;h3 id=&quot;1-introduction&quot;&gt;1. Introduction&lt;/h3&gt;
 
@@ -64,32 +68,87 @@
 
 &lt;p&gt;&lt;strong&gt;2.1 Anchor Location Prediction&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;如图 1 所示，概率图 $p(·｜F_i)$ 的大小与特征图 $F_i$ 大小一致，通道数为1。其中每个 $p(i,j｜F_i)$  对应于原图坐标 $(\frac{i+1}{2}s,\frac{j+1}{2}s)$，其中 s 为该特征图的步长，该项的值表示物体的中心存在于该位置的概率。&lt;/p&gt;
+&lt;p&gt;如图 1 所示，概率图 $p(\cdot｜F_i)$ 的大小与特征图 $F_i$ 大小一致，通道数为1。其中每个 $p(i,j｜F_i)$  对应于原图坐标 $(\frac{i+1}{2}s,\frac{j+1}{2}s)$，其中 s 为该特征图的步长，该项的值表示物体的中心存在于该位置的概率。&lt;/p&gt;
 
 &lt;p&gt;实现中，该概率图是由 $N_L$ 网络进行预测。网络将 $1 \times 1$ 卷积应用于特征图 $F_i$，获得物体性分数 map，然后通过 sigmoid 函数将其转化为概率值。（一层 Conv + sigmoid 在效率和准确度之间取得了很好的平衡）&lt;/p&gt;
 
-&lt;p&gt;通过生成的概率图，可以选择相对概率值高的阈值 $\epsilon_L$ 来确定可能寻在物体的区域（保持相同召回率情况下可过滤掉90%的区域）。由于不需要考虑那些被排除的区域，我们将后续的卷积层替换为掩码卷积，以获得更有效的推理。&lt;/p&gt;
+&lt;p&gt;通过生成的概率图，可以选择相对概率值高的阈值 $\epsilon_L$ 来确定可能寻在物体的区域（保持相同召回率情况下可过滤掉90%的区域）。由于不需要考虑那些被排除的区域，可以将后续的卷积层替换为掩码卷积，以获得更有效的推理。&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;2.2 Anchor Shape Prediction&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;在确定物体可能的位置之后，下一步是确定每个位置上可能存在的物体的形状。这是由锚的形状预测分支完成的，如图1所示。这个分支与传统的边界盒回归有很大的不同，因为它不会改变锚框的位置，也不会导致锚框和锚框特征之间的错位。具体来说，给定一个特征图FI，该分支将预测每个位置的最佳形状 (w, h)，即使之达到与最近的 ground-truth 包围框的最高覆盖率的形状。&lt;/p&gt;
+&lt;p&gt;在确定物体可能的位置之后，下一步是确定每个位置上可能存在的物体的形状。这是由锚的形状预测分支完成的，如图 1 所示。这个分支与传统的边界盒回归有很大的不同，因为它不会改变锚框的位置，也不会导致锚框和锚框特征之间的错位。具体来说，给定一个特征图 $F_i$，该分支将预测每个位置的最佳形状 (w, h)，即使之达到与最近的 ground-truth 包围框的最高覆盖率的形状。&lt;/p&gt;
 
 &lt;p&gt;根据经验发现，直接预测这两个数字是不稳定的，因为它们的范围很大。相反，采用以下转换效果更好：&lt;/p&gt;
 
 \[w=\sigma \cdot s \cdot e^{dw}, \space \space \space \space h=\sigma \cdot s \cdot e^{dh}\]
 
-&lt;p&gt;其中 s 为步长，$\sigma$ 为经验比例因子（一般设置 $\sigma$ = 8）。这种非线性转换将将输出空间从近似 $[0, 1000]$ 投影到$[-1, 1]$，从而更容易且稳定的学习。&lt;/p&gt;
+&lt;p&gt;其中 s 为步长，$\sigma$ 为经验比例因子（一般设置 $\sigma$ = 8）。这种非线性转换将将输出空间从近似 $[0, 1000]$ 投影到$[-1, 1]$，从而可以获得更容易且稳定的学习。&lt;/p&gt;
 
-&lt;p&gt;实现中，该形状由 $N_S$ 网络进行预测。网络将 $1 \times 1$ 卷积应用于特征图 $F_i$，生成包含 $dw$ 和 $dh$ 的双通道映射，并通过公式2进行转换。&lt;/p&gt;
+&lt;p&gt;实现中，该形状由 $N_S$ 网络进行预测。网络将 $1 \times 1$ 卷积应用于特征图 $F_i$，生成包含 $dw$ 和 $dh$ 的双通道映射，并通过上述公式进行转换。&lt;/p&gt;
 
 &lt;p&gt;这种设计与传统的锚定方案有本质上的不同，因为每个位置只与动态预测形状的一个锚框相关联，而不是与一组预定义形状的锚框相关联。实验表明，由于位置和形状之间的密切关系，此方案可以获得比基线方案（统一均匀生成方案）更高的召回率。由于它允许任意的纵横比（可学习性），此方案可以更好地捕捉那些极高或极宽的物体。&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;2.3 Anchor-Guided Feature Adaptation&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;未完待续。。。&lt;/p&gt;
+&lt;p&gt;在常规的 anchor-based 检测器中，锚框在整个特征图上是均匀的，即锚框在每个位置上具有相同的形状和比例。因此，特征图可以学习一致的表示。在本方案中，锚框形状因位置而异，这种情况下，发现遵循前面的规定并不是一个很好的选择（卷积是在特征图上统一应用）。理想情况是，大型锚框应该在在大范围内编码内容，小型锚框相应的应该具有较小的作用域。&lt;/p&gt;
+
+&lt;p&gt;根据此直觉，进一步设计了锚框引导的特征自适应组件，它将根据锚的形状在每个单独的位置上进行特征转换，表示如下：&lt;/p&gt;
+
+\[f_i^{&apos;} = N_T(f_i, w_i, h_i)\]
+
+&lt;p&gt;其中 $f_i$ 为第 i 个位置的特征，$(w_i, h_i)$ 为对应的锚框形状。&lt;/p&gt;
+
+&lt;p&gt;实现中，采用 $3\times3$ 的可变性卷积来实现 $N_T$ 网络。如图 1 所示，首先从锚框预设分支拿到一个偏移场，然后对偏移场的原始特征进行可变性卷积，得到 $f_i^{‘}$ (自适应后特征)。之后可以进行进一步的分类和边界框的回归。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;2.4 Training&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;a. Joint objective&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;此框架使用多任务损失的端到端方式进行优化。除了传统的分类损耗 $L_{cls}$ 和回归损耗 $L_{reg}$ 外，还引入了锚定位 $L_{loc}$ 和锚形状预测 $L_{shape}$ 两种额外的损失。他们以以下的损失 $L$ 共同优化：&lt;/p&gt;
+
+\[L = \lambda_1 \cdot L_{loc} + \lambda_2 \cdot L_{shape} + L_{cls} + L_{reg}\]
+
+&lt;p&gt;&lt;strong&gt;b. Anchor location targets&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;为了训练锚框定位分支，对于每个图像，都需要一个二进制标签映射，用 1 表示放置锚框的有效位置，0 为无效。此处采用 ground-truth 边界框来指导标签映射的生成（期望物体中心附近放置更多锚框，远离中心尽量少）。&lt;/p&gt;
+
+&lt;p&gt;用 $(x_g,y_g,w_g,x_g)$ 表示真值框，经其映射到各特征图，得到 $(x_g^{‘},y_g^{‘},w_g^{‘},x_g^{‘})$ ，将 $R(s,y,w,h)$ 表示为中心为 $(x,y)$ ，大小为 $w \times h$ 的矩形区域。更具上述期望，定义三种类型区域：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;center region: $CR=R(x_g^{‘},y_g^{‘},\sigma_1 w_g^{‘},\sigma_1 x_g^{‘})$  表示为中心区域，其中的像素被分配为正样本&lt;/li&gt;
+  &lt;li&gt;ignore region: $IR=R(x_g^{‘},y_g^{‘},\sigma_2 w_g^{‘},\sigma_2 x_g^{‘}) \setminus CR$  是一个较大的 $(\sigma_2&amp;gt;\sigma_1)$ 不包括 $CR$ 的区域，表示为忽略区域，训练时被排除&lt;/li&gt;
+  &lt;li&gt;outside region: $OR$ 不包含 $CR$ 和 $OR$ 的特征图区域，像素被分配为负样本&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/Anchor-location.png&quot; alt=&quot;Anchor-location&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;此处还考虑了相邻特征图的影响，具体来说，每个级别的特征图应该只针对特定比例范围的对象，因此仅在特征图与目标对象的比例范围匹配时才在特征图上分配 $CR$。相邻层的相同区域设置为IR，如图 2 所示（$CR$ 可以抑制 $IR$ ，$IR$ 可以抑制 $OR$）。由于 $CR$ 通常只占整个特征图的一小部分，所以使用 Focal Loss 来训练位置分支。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;c. Anchor shape targets&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;由于本方案中锚框的 w 和 h 不是预定的，而是变量，就无法直接进行分配并计算 IoU。为了克服这个问题，进行如下函数优化：&lt;/p&gt;
+
+\[vIoU(a_{wh},gt)=\max_{w&amp;gt;0,h&amp;gt;0}IoU_{normal}(a_{wh},gt)\]
+
+&lt;p&gt;其中 $IoU_{normal}$ 为原始 $IoU$ 定义，w 和 h 为变量，$a_{wh}$ 为任意位置 $(x_0,y_0)$ 处的锚框，$gt$ 为真值框。但由于 $vIoU(a_{wh},gt)$ 表达式的复杂性，很难在网络中有效的实现。因此采用另一种方法来近似。在 $(x_0,y_0)$ 处，对 w 和 h 的一些公共值进行采样，以模拟所有 w 和 h 的枚举。然后用 $gt$ 计算这些采样锚的 $IoU$，并使用最大值作为 $vIoU(a_{wh},gt)$ 的近似值。&lt;/p&gt;
+
+&lt;p&gt;在实验中，采用 RetinaNet 中的 9 种不同尺度和横纵比进行采样模拟（采样越多，模拟越精确，但计算成本更重）。采用 bound IoU Loss 来训练形状分支。损失函数表达式如下：&lt;/p&gt;
+
+\[L_{shape}=L_1(1-min( \frac{w}{w_g}, \frac{w_g}{h})) + L_1(1-min( \frac{h}{h_g}, \frac{h_g}{h}))\]
+
+&lt;p&gt;其中 $(w, h)$ 和 $(w_g, h_g)$ 分别表示为预测的宽高和真实的宽高，$L_1$ 为 Smooth L1 Loss。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;d. The Use of High-quality Proposals&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;GA-RPN 相对于 RPN 有两点优势：（1）正提议数量更多；（2）高 $IoU$ 提议的比率更为显著。&lt;/p&gt;
+
+&lt;p&gt;直接使用 GA-RPN 代替 RPN 并不能带来很好的收益（涨点不到 1）。由于使用高质量提议的前提是根据提议的分布调整训练样本的分布，因此，与 RPN 相比，设置更高的正/负阈值，并在使用 GA-RPN 时使用更少的训练样本，可以获得更高的收益。&lt;/p&gt;
+
+&lt;p&gt;此外，可以使用 GA-RPN 通过微调来提高训练好的两阶段检测器。具体来说，给定一个训练好的模型，放弃建议生成组件（RPN)，并使用预先计算的 GA-RPN 对它进行几个 epoch (默认为 3 个 epoch ) 的微调，GA-RPN 也用于推理。这种简单的微调方案只需要几个 epoch 的时间成本，就可以获得进一步大幅度的性能提升。&lt;/p&gt;
 
 &lt;h3 id=&quot;3-experiments&quot;&gt;3. Experiments&lt;/h3&gt;
 
+&lt;p&gt;未完待续。。。&lt;/p&gt;
 </description>
         <pubDate>Mon, 06 Mar 2023 00:00:00 +0800</pubDate>
         <link>http://localhost:4000/2023/03/06/RA-RPN.html</link>
