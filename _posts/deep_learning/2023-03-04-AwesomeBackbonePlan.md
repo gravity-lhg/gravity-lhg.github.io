@@ -3,7 +3,7 @@ layout: post
 title: 'Awesome Backnone Plan'
 data: 2023-03-04
 author: 刘浩光
-cover: 'assets/images/AwesomeBackbone.png'
+cover: 'assets/images/header/AwesomeBackbone.png'
 tags: 深度学习 论文阅读
 ---
 
@@ -29,7 +29,7 @@ tags: 深度学习 论文阅读
 
 **Model Tweaks**
 
-![ResNet architecture and some tweaks](/assets/images/resnet_tweak.png)
+![ResNet architecture and some tweaks](/assets/images/context/resnet_tweak.png)
 
 - **ResNet-B** ｜  其认为在 block 中第一个 1x1 的卷积使用步长为 2 会丢失觉很大一部分信息，将其移致 3x3 的卷积更为合理。
 - **ResNet-C** ｜  因为卷积的计算复成本和其核边长是二次相关的，其将最前面的 7x7 卷积用 3 个 3x3 的卷积替换，以降低其计算成本。具体细节是将通道数变化改为 3 >> 32，32 >> 32，32 >> 64，对应的步长分别是 2，2，1。
@@ -37,7 +37,7 @@ tags: 深度学习 论文阅读
 
 以上消融实验结果如下所示。（采用 Efficient Training 中所有 tricks，需要注意的是**三个 tweak 是逐级叠加的优化**）
 
-![resnet_tweak_ablation](/assets/images/resnet_tweak_ablation.png)
+![resnet_tweak_ablation](/assets/images/context/resnet_tweak_ablation.png)
 
 **Training Refinements**
 

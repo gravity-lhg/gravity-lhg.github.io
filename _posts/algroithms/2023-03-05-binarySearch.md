@@ -3,7 +3,7 @@ layout: post
 title: 'Binary Search Algorithm'
 data: 2023-03-05
 author: 刘浩光
-cover: 'assets/images/binary-search.png'
+cover: 'assets/images/header/binary-search.png'
 tags: 算法
 ---
 

@@ -145,7 +145,7 @@ Author: Ray-Eldath
     </div>
     
     <div class="filter"></div>
-      <div class="post-cover" style="background: url('/assets/images/GA-RPN.png') center no-repeat; background-size: cover;"></div>
+      <div class="post-cover" style="background: url('/assets/images/header/GA-RPN.png') center no-repeat; background-size: cover;"></div>
     
   </header>
 
@@ -158,6 +158,8 @@ Author: Ray-Eldath
 <blockquote>
   <p>文章发表于 CVPR 2019.</p>
 </blockquote>
+
+<p>论文链接地址：<a href="https://openaccess.thecvf.com/content_CVPR_2019/papers/Wang_Region_Proposal_by_Guided_Anchoring_CVPR_2019_paper.pdf">Region Proposal by Guided Anchoring</a></p>
 
 <h3 id="1-introduction">1. Introduction</h3>
 
@@ -200,7 +202,7 @@ Author: Ray-Eldath
 
 <p>根据上述两个直觉，设计出一个锚框生成模块（自适应），如下图所示：</p>
 
-<p><img src="/assets/images/GA-framework.png" alt="GA-framework" /></p>
+<p><img src="/assets/images/context/GA-framework.png" alt="GA-framework" /></p>
 
 <p>首先将各层特征图 $F_i$ 送入位置预测分支和形状预测分支，分别产生一个物体可能存在的概率图和位置相关的形状。再通过选择位置概率高于某阈值的位置和每个所选位置最可能的形状来生成一组锚框。</p>
 
@@ -262,7 +264,7 @@ Author: Ray-Eldath
   <li>outside region: $OR$ 不包含 $CR$ 和 $OR$ 的特征图区域，像素被分配为负样本</li>
 </ul>
 
-<p><img src="/assets/images/Anchor-location.png" alt="Anchor-location" /></p>
+<p><img src="/assets/images/context/GA-mul-loc.png" alt="Anchor-location" /></p>
 
 <p>此处还考虑了相邻特征图的影响，具体来说，每个级别的特征图应该只针对特定比例范围的对象，因此仅在特征图与目标对象的比例范围匹配时才在特征图上分配 $CR$。相邻层的相同区域设置为IR，如图 2 所示（$CR$ 可以抑制 $IR$ ，$IR$ 可以抑制 $OR$）。由于 $CR$ 通常只占整个特征图的一小部分，所以使用 Focal Loss 来训练位置分支。</p>
 
@@ -276,7 +278,7 @@ Author: Ray-Eldath
 
 <p>在实验中，采用 RetinaNet 中的 9 种不同尺度和横纵比进行采样模拟（采样越多，模拟越精确，但计算成本更重）。采用 bound IoU Loss 来训练形状分支。损失函数表达式如下：</p>
 
-\[L_{shape}=L_1(1-min( \frac{w}{w_g}, \frac{w_g}{h})) + L_1(1-min( \frac{h}{h_g}, \frac{h_g}{h}))\]
+\[L_{shape}=L_1(1-min( \frac{w}{w_g}, \frac{w_g}{w})) + L_1(1-min( \frac{h}{h_g}, \frac{h_g}{h}))\]
 
 <p>其中 $(w, h)$ 和 $(w_g, h_g)$ 分别表示为预测的宽高和真实的宽高，$L_1$ 为 Smooth L1 Loss。</p>
 
@@ -290,7 +292,29 @@ Author: Ray-Eldath
 
 <h3 id="3-experiments">3. Experiments</h3>
 
-<p>未完待续。。。</p>
+<p>下述所有实验均在 MS COCO 2017 上进行。</p>
+
+<p>如果没有特殊说明，所有实验采用 ResNet-50 作为主干网络，FPN 作为颈部网络。图像调整大小为 $1333 \times 800$ 并不改变横纵比。设置参数 $\sigma_1=0.2, \space \sigma_2=0.5$。多任务损函数中，设置 $\lambda_1=1, \space \lambda_2=0.1$ 来平衡位置和形状预测分支。</p>
+
+<p>RPN 的结果用平均召回率（AR）来衡量。AR 是阈值从 0.5 到 0.95 的召回率的平均值。每张图像100、300和1000个提议的 AR 分别表示为 $AR_{100}、AR_{300}$ 和 $AR_{1000}$。小型、中型和大型对象（$AR_S、AR_M、AR_L$）的 AR 为 100 个提议计算。检测结果使用标准 COCO 度量进行评估，该度量为 IoU 的 mAP 从 0.5 到 0.95。</p>
+
+<p><img src="/assets/images/context/GA-result1.png" alt="GA-result" /></p>
+
+<p>其中，RPN + 9 anchors 为使用 3 个尺度 3 个比率；RPN + Focal Loss 和 RPN + Bounded IoU Loss 分别为替换 RPN 中原有的 Cross-Entropy Loss 和 Smooth L1 Loss；RPN + Iterative 为采用两次 RPN head，并且中间用 $3 \times 3$ 卷积层连接；RefineRPN 为锚框根据 FPN前后特征进行两次回归和分类。 可以看到，AR 的值都在显著的提升，GA-RPN 的平均查全率最大，尤其表现在中大型目标上。</p>
+
+<p>同时，其对于 AP 的提升也十分明显，应用在 anchor-based 的检测器，在 COCO 数据集上基本会得到 2 个点左右的 mAP 提升。如下图所示：</p>
+
+<div align="center">
+    <img src="/assets/images/context/GA-result2.png" width="60%" />
+</div>
+
+<p>下图为 RPN 和 GA-RPN 的可视化结果，可以看到 GA-RPN 提议的框更少，但更精确。</p>
+
+<div align="center">
+	<img src="/assets/images/context/GA-result3.png" width="80%" />
+</div>
+
+<p>更多详细的消融实验见论文原文，实现代码详见 mmdetation 官方仓库。</p>
 
     </article>
 
@@ -340,7 +364,7 @@ Author: Ray-Eldath
           </section>
           
           <div class="filter"></div>
-          <img src="/assets/images/binary-search.png" alt="">
+          <img src="/assets/images/header/binary-search.png" alt="">
           
       </div>
       
