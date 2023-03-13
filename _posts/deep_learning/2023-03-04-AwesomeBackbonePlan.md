@@ -4,7 +4,7 @@ title: 'Awesome Backnone Plan'
 data: 2023-03-04
 author: 刘浩光
 cover: 'assets/images/header/AwesomeBackbone.png'
-tags: 深度学习 论文阅读
+tags: DeepLearning ReadPaper
 ---
 
 ## 主干网络大汇总

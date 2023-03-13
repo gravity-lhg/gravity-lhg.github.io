@@ -1,14 +1,20 @@
 [
   
     {
+      "title"    : "Compiling Stuffs",
+      "tags"     : "Programming",
+      "url"      : "/2023/03/13/First_compiling.html"
+    } ,
+  
+    {
       "title"    : "Region Proposal by Guided Anchoring",
-      "tags"     : "深度学习 论文阅读",
-      "url"      : "/2023/03/06/RA-RPN.html"
+      "tags"     : "DeepLearning ReadPaper",
+      "url"      : "/2023/03/06/GA_RPN.html"
     } ,
   
     {
       "title"    : "Binary Search Algorithm",
-      "tags"     : "算法",
+      "tags"     : "Algorithm",
       "url"      : "/2023/03/05/binarySearch.html"
     } ,
   
@@ -20,7 +26,7 @@
   
     {
       "title"    : "Awesome Backnone Plan",
-      "tags"     : "深度学习 论文阅读",
+      "tags"     : "DeepLearning ReadPaper",
       "url"      : "/2023/03/04/AwesomeBackbonePlan.html"
     } 
   

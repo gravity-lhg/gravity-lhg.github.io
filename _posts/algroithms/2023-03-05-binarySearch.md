@@ -4,7 +4,7 @@ title: 'Binary Search Algorithm'
 data: 2023-03-05
 author: 刘浩光
 cover: 'assets/images/header/binary-search.png'
-tags: 算法
+tags: Algorithm
 ---
 
 ## 二分查找算法的 C++ 实现与 STL 库调用实现
