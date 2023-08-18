@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ 面相对象的三大特性 - 刘浩光的个人博客</title>
+    <meta name="author"  content="刘浩光">
+    <meta name="description" content="C++ 面相对象的三大特性">
+    <meta name="keywords"  content="C++">
+    <!-- Open Graph -->
+    <meta property="og:title" content="C++ 面相对象的三大特性 - 刘浩光的个人博客">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:4000/2023/08/17/ThreeCharacteristics.html">
+    <meta property="og:description" content="为天地立心, 为生民立命, 为往圣继绝学, 为万世开太平">
+    <meta property="og:site_name" content="刘浩光的个人博客">
+    <link rel="stylesheet" href="//cdn.staticfile.org/normalize/6.0.0/normalize.min.css">
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_roc50gemkxpw4s4i.css">
+    <link rel="stylesheet" href="/assets/css/github-markdown.css">
+    <link rel="stylesheet" href="/assets/css/prism.css">
+    <link rel="stylesheet" href="/assets/css/share.min.css">
+    <link rel="stylesheet" href="/assets/css/app.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+	
+	<!--
+Author: Ray-Eldath
+refer to:
+ - http://docs.mathjax.org/en/latest/options/index.html
+-->
+
+	<script type="text/javascript" async src="https://cdn.bootcss.com/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+	
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+		jax: ["input/TeX", "output/HTML-CSS"],
+		tex2jax: {
+			inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+			displayMath: [ ["$$", "$$"], ["\\[","\\]"] ],
+			skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+		},
+		"HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+      });
+    </script>
+
+
+	
+    <!--
+Author: Ray-Eldath
+-->
+<style>
+    .markdown-body .anchor{
+        float: left;
+        margin-top: -8px;
+        margin-left: -20px;
+        padding-right: 4px;
+        line-height: 1;
+        opacity: 0;
+    }
+    
+    .markdown-body .anchor .anchor-icon{
+        font-size: 15px
+    }
+</style>
+<script>
+    $(document).ready(function() {
+        let nodes = document.querySelector(".markdown-body").querySelectorAll("h1,h2,h3")
+        for(let node of nodes) {
+            var anchor = document.createElement("a")
+            var anchorIcon = document.createElement("i")
+            anchorIcon.setAttribute("class", "fa fa-anchor fa-lg anchor-icon")
+            anchorIcon.setAttribute("aria-hidden", true)
+            anchor.setAttribute("class", "anchor")
+            anchor.setAttribute("href", "#" + node.getAttribute("id"))
+            
+            anchor.onmouseover = function() {
+                this.style.opacity = "0.4"
+            }
+            
+            anchor.onmouseout = function() {
+                this.style.opacity = "0"
+            }
+            
+            anchor.appendChild(anchorIcon)
+            node.appendChild(anchor)
+        }
+    })
+</script>
+	
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?671e6ffb306c963dfa227c8335045b4f";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+		
+        })();
+    </script>
+
+</head>
+
+
+<body>
+  <!--[if lt IE 10]>
+<div class="alert-danger" role="alert">你的浏览器实在太太太旧了，放学别走，升级完浏览器再说！<a target="_blank" class="alert-link" href="http://browsehappy.com">立即升级</a></div>
+<![endif]-->
+  <input id="nm-switch" type="hidden" value="true"> <header class="g-header">
+    <div class="g-logo">
+      <a href="/"></a>
+    </div>
+    <i id="menu-toggle" class="iconfont icon-menu"></i>
+    <nav class="g-nav">
+        <ul>
+            
+            <li><a href="/">home</a></li>
+            
+            <li><a href="/tags.html">tags</a></li>
+            
+        </ul>
+    </nav>
+</header>
+
+
+  <header
+    class="g-banner post-header post-pattern-circuitBoard bgcolor-default "
+    data-theme="default"
+  >
+    <div class="post-wrapper">
+      <div class="post-tags">
+        
+          
+            <a href="/tags.html#C++" class="post-tag">C++</a>
+          
+        
+      </div>
+      <h1>C++ 面相对象的三大特性</h1>
+      <div class="post-meta">
+        <span class="post-meta-item"><i class="iconfont icon-author"></i>刘浩光</span>
+        <time class="post-meta-item" datetime="23-08-17"><i class="iconfont icon-date"></i>17 Aug 2023</time>
+      </div>
+    </div>
+    
+    <div class="filter"></div>
+      <div class="post-cover" style="background: url('/assets/images/header/cplusplus.png') center no-repeat; background-size: cover;"></div>
+    
+  </header>
+
+  <div class="post-content visible">
+    
+
+    <article class="markdown-body">
+      <h2 id="c-三大特性共同构建了面向对象编程的基石使代码更加安全可维护和扩展">C++ 三大特性共同构建了面向对象编程的基石，使代码更加安全、可维护和扩展</h2>
+
+<blockquote>
+  <p><strong>封装 Encapsulation、继承 Inheritance、多态 Polymorphism</strong></p>
+</blockquote>
+
+<h4 id="1-封装encapsulate">1. 封装（Encapsulate）</h4>
+
+<p>封装是一种将数据和操作封装在一个单元内部的机制，通过将数据成员和成员函数封装在类中，可以实现数据的隐藏与保护，防止外部直接访问会修改类的内部数据，外部只能通过 public 的接口来进行操作。封装可以提高代码的可维护性和安全性，同时也支持实现信息的隐藏和模块化设计。</p>
+
+<p>类(class)是 C++ 中最常用于实现封装的方式，它具有三种主要的访问权限，如下：</p>
+
+<pre><code class="language-C++">class Space {
+public:
+    // 公共访问权限，类内部、类外部以及派生类中都可以访问
+  
+protected:
+  	// 受保护访问权限，类外部无法访问，仅允许类内部和派生类中访问
+  
+private:
+  	// 私有访问权限，仅允许在类内部访问，类外部和派生类中无法访问
+};
+// 注：类外部无法直接访问的成员可以通过实现公共接口进行访问
+</code></pre>
+
+<h4 id="2-继承inheritance">2. 继承（Inheritance）</h4>
+
+<p>继承是一种通过从现有类派生新类的机制，派生类可以继承现有类的成员变量和成员函数，同时可以新增或重写自己的成员。继承可以实现代码的复用、扩展和层次化设计，是的类之间可以建立层次关系，派生类可以共享基类的特性。</p>
+
+<p>在类的继承中，派生类可以继承基类的成员和访问权限，继承规则如下：</p>
+
+<ul>
+  <li>pravite：成员在派生类中和类外部均不可以访问
+    <ul>
+      <li>基类的公有成员 ==&gt; 派生类的私有成员</li>
+      <li>基类的保护成员 ==&gt; 派生类的私有成员</li>
+      <li>基类的私有成员：不会继承到派生类</li>
+    </ul>
+  </li>
+  <li>protented：成员在派生类中可以访问，但在类外部不可以访问
+    <ul>
+      <li>基类的公有成员 ==&gt; 派生类的保护成员</li>
+      <li>基类的保护成员 ==&gt; 派生类的保护成员</li>
+      <li>基类的私有成员：不会继承到派生类</li>
+    </ul>
+  </li>
+  <li>public：成员在派生类中可以访问，也可以在类外部访问
+    <ul>
+      <li>基类的公有成员 ==&gt; 派生类的公有成员</li>
+      <li>基类的保护成员 ==&gt; 派生类的保护成员</li>
+      <li>基类的私有成员：不会继承到派生类</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>注：</strong>无论如何的继承方式，基类的私有成员都不会被直接继承到派生类中，因为私有成员只能在基类内部访问，派生类无妨直接访问它们。</p>
+
+<p>公有继承通常用于 “是一个” 关系，保护继承和私有继承则用于 “实现了一个” 或 “实现了一个接口” 的关系。</p>
+
+<ul>
+  <li>“是一个” 关系：当一个类公有地继承另一个类时，这意味着派生类是基类的一种特殊类型。派生类拥有基类的所有公有接口和功能，可以被视为基类的一种扩展。例如，有一个基类 Animal，可以创建一个派生类 Dog，狗是一种动物，它继承了动物的特性和行为</li>
+  <li>”实现了一个“ 或 ”实现了一个接口“ 关系：当一个类保护或私有的继承了另一个类时，这通常表示派生类在实现中使用了基类的接口和功能，但并不打算向外界暴露这种关系。保护继承和私有继承更多的用于实现代码的复用和实现细节的隐藏。例如，有一个基类 Shape，可以使用保护和私有继承来创建一个派生类 Circle，以便在圆的实现中重用 Shape 类的功能，但并不希望直接将 Circle 视为 Shape 类的一种类型</li>
+</ul>
+
+<h4 id="3-多态polymorphism">3. 多态（Polymorphism）</h4>
+
+<p>多态是一种允许不同对象以统一的方式进行操作的特性，它使得派生类对象可以通过基类的指针或引用来调用相同的方法，从而实现不同的行为。多态可以通过 <strong>虚函数（动态多态性）</strong>或 <strong>函数重载 以及 泛型编程（静态多态性）</strong>来实现，它可以提高代码的灵活性和扩展性，同时支持运行时的动态绑定。</p>
+
+<p>首先来区分一下 <strong>静多态</strong> 和 <strong>动多态</strong></p>
+
+<ol>
+  <li>
+    <p>静多态</p>
+
+    <p>静态多态性是在 <strong>编译的时候</strong> 就确定调用函数的类型，比如函数重载就是一个典型的静多态，函数重载的规则：</p>
+
+    <ul>
+      <li>函数名称相同</li>
+      <li>参数的个数不同、参数的类型不同、参数的顺序不同</li>
+      <li>返回类型不同 <strong>不可以</strong> 构成重载</li>
+      <li>相同的 scope</li>
+    </ul>
+  </li>
+  <li>
+    <p>动多态</p>
+
+    <p>动态多态性是 <strong>在运行的时候</strong> 才确定调用哪个函数，动态绑定。实质是派生类重新定义了基类的虚函数，基类的指针根据赋给它的不同派生类的指针，动态的调用属于派生类的该函数，这样的调用在编译期间是无法确定的。此处引入一个概念：<strong>覆盖</strong>。覆盖（override）实质派生类中重新定义基类中的函数，其规则如下：</p>
+
+    <ul>
+      <li>函数名称相同</li>
+      <li>函数的参数列表相同</li>
+      <li>基类函数必须有 virtual 关键字</li>
+      <li>override 关键字并不必须，但使用会增强代码的可读性和安全性</li>
+      <li>隐藏
+        <ul>
+          <li>如果派生类的函数与基类的函数同名，但参数列表不同，此时无论是否有 virtual 关键字，基类的函数都将被隐藏（注意与 重载 区分）</li>
+          <li>如果派生类的函数与基类的函数同名，并且参数也相同，但基类的该函数并没有 virtual 关键字，基类的函数被隐藏（注意与 覆盖 区分）</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<p>在 C++ 的类中，采用虚函数的实现多态。即在基类的函数前面加上 vistual 关键字，在派生类中重写该函数。其格式如下所示：</p>
+
+<pre><code class="language-C++">class className {
+public:
+  	virtual func(patameter list) {
+      	// 函数体
+    }
+};
+class childName : public className {
+public:
+  	func(patameter list) override {		// override 非必须
+      	// 派生类重写函数体
+    }
+};
+</code></pre>
+
+<p>下述时一些虚函数相关的规则：</p>
+
+<ul>
+  <li>在基类中用 virtual 声明成员函数为虚函数，在类外实现虚函数时，就不必再加 virtual 了</li>
+  <li>派生类中重新定义基类的虚函数称为覆写，要求函数名、返回类型、参数列表全部匹配。只有函数体需要重新定义</li>
+  <li>当一个成员函数被声明为虚函数后，其派生类中完全相同的函数也为虚函数。可以在其前面加上 vitrual 关键字，但也是非必须的</li>
+  <li>派生类中覆写的函数，可以为任意访问类型，依派生类需求决定</li>
+  <li>只有类中的成员函数才能声明为虚函数，因为虚函数仅适用于与有继承关系的类对象，所以普通函数（包括友元函数）不能声明为虚函数</li>
+  <li>静态成员函数不能是虚函数，因为静态成员函数不受限于某个对象</li>
+  <li>内联函数不能是虚函数，因为内联函数不能在运行中动态确定位置。但 <code class="language-plaintext highlighter-rouge">inline virtual func()</code> 在某些编译器是可以通过的，因为 inline 并不是强制型的关键字，而是建议型的</li>
+  <li>构造函数不能是虚函数，析构函数可以是虚函数，而且通常声明为虚函数（析构函数比较特殊，因为派生类的析构函数跟基类的析构函数名称是不一样的，但是构成覆盖，这里编译器做了特殊处理）
+    <ul>
+      <li>构造函数为什么不能是虚函数？</li>
+      <li><strong>析构函数可以是虚函数，通常声明为虚函数？</strong>当我们将对象创建在栈上时，作用域结束后程序就会自动调用析构函数，无须我们手动的释放内存。当将对象动态的创建在堆上时（new），作用域结束后程序并不会自动释放对象的内存，这需要我们手动进行内存释放回收（delete），确保内存得到正确的回收。在继承关系中，如果派生类对象创建在栈上，则无需手动释放内存，在作用域结束后，程序会自外向内的（派生类到基类）调用各自的析构函数释放内存。如果派生类对象创建在堆上，作用域结束后程序不会自动释放内存，需要手动释放。这时，当派生类对象通过基类指针或引用进行释放时，如果不将析构函数设置为虚函数，它就只调用基类的析构函数，并不会调用派生类的析构，造成内存泄漏。这种现象应该是多态特性造成的 (注：delete 派生类对象时就不会出现这样的问题)</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-C++">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+using namespace std;
+
+class People {
+public:
+    People(string name, int age) : name(name), age(age) {
+        cout &lt;&lt; "&gt;&gt; People constructor, initList" &lt;&lt; endl;
+    }
+  	// 将基类析构定义为虚函数，便于基类指针或引用释放派生类对象
+    virtual ~People() {
+        cout &lt;&lt; "&gt;&gt; People destructor" &lt;&lt; endl;
+    }
+    string getName() const { return name; }
+    int getAge() const { return age; }
+    virtual void introduce() const {
+        cout &lt;&lt; "This is a people introduce" &lt;&lt; endl;
+    }
+private:
+    string name;
+    int age;
+};
+
+class Student : public People {
+public:
+    Student(string name, int age, int studentID, float score = 0.0) 
+        : People(name, age), studentID(studentID), score(score) {
+        cout &lt;&lt; "&gt;&gt; Student constructor" &lt;&lt; endl;
+    }
+    ~Student() override {
+        cout &lt;&lt; "&gt;&gt; Student destructor" &lt;&lt; endl;
+    }
+    int getStudentID() const { return studentID; }
+    float getScore() const { return score; }
+    void introduce() const override {
+        cout &lt;&lt; "== Student Introduction ==" &lt;&lt; endl;
+        cout &lt;&lt; "I'm a student, my name is " &lt;&lt; getName() &lt;&lt; ", my age is "
+        &lt;&lt; getAge() &lt;&lt; ", my studentID is " &lt;&lt; getStudentID() &lt;&lt; ", my score is "
+        &lt;&lt; getScore() &lt;&lt; endl;
+    }
+private:
+    int studentID;
+    float score;
+};
+
+class Worker : public People {
+public:
+    Worker(string name, int age, int workerID, float salary = 0.0)
+        : People(name, age), WorkerID(workerID), salary(salary) {
+        cout &lt;&lt; "&gt;&gt; Worker constructor" &lt;&lt; endl;
+        }
+    ~Worker() override {
+        cout &lt;&lt; "&gt;&gt; Worker destructor" &lt;&lt; endl;
+    }
+    int getWorkerID() const { return WorkerID; }
+    float getSalary() const { return salary; }
+    void introduce() const override {
+        cout &lt;&lt; "== Worker Introduction ==" &lt;&lt; endl;
+        cout &lt;&lt; "I'm a worker, my name is " &lt;&lt; getName() &lt;&lt; ", my age is "
+        &lt;&lt; getAge() &lt;&lt; ", my workerID is " &lt;&lt; getWorkerID() &lt;&lt; ", my salary is "
+        &lt;&lt; getSalary() &lt;&lt; endl;
+    }
+private:
+    int WorkerID;
+    float salary;
+};
+
+// base class reference
+void someoneIntroduce(const People&amp; people) {		// 基类引用接受派生类对象，实现多态
+    people.introduce();
+}
+
+int main() {
+  	// 栈上创建派生类 Student 对象
+    Student s1("Bob", 20, 12345, 98.7);
+    cout &lt;&lt; "####### STUDENT INFO #######" &lt;&lt; endl;
+    cout &lt;&lt; "Name: " &lt;&lt; s1.getName() &lt;&lt; endl;
+    cout &lt;&lt; "Age: " &lt;&lt; s1.getAge() &lt;&lt; endl;
+    cout &lt;&lt; "Student ID: " &lt;&lt; s1.getStudentID() &lt;&lt; endl;
+    cout &lt;&lt; "Score: " &lt;&lt; s1.getScore() &lt;&lt; endl;
+    cout &lt;&lt; "########### END ###########" &lt;&lt; endl;
+
+  	// 堆上动态创建派生类 Student 对象
+    Student* s2 = new Student("Bob", 20, 12345, 98.7);
+    cout &lt;&lt; "####### STUDENT INFO #######" &lt;&lt; endl;
+    cout &lt;&lt; "Name: " &lt;&lt; s2-&gt;getName() &lt;&lt; endl;
+    cout &lt;&lt; "Age: " &lt;&lt; s2-&gt;getAge() &lt;&lt; endl;
+    cout &lt;&lt; "Student ID: " &lt;&lt; s2-&gt;getStudentID() &lt;&lt; endl;
+    cout &lt;&lt; "Score: " &lt;&lt; s2-&gt;getScore() &lt;&lt; endl;
+    cout &lt;&lt; "########### END ###########" &lt;&lt; endl;
+		
+  	// 栈上创建派生类 Worker 对象
+    Worker w1("Tom", 38, 10024, 8000.74);
+    cout &lt;&lt; "####### WORKER INFO #######" &lt;&lt; endl;
+    cout &lt;&lt; "Name: " &lt;&lt; w1.getName() &lt;&lt; endl;
+    cout &lt;&lt; "Age: " &lt;&lt; w1.getAge() &lt;&lt; endl;
+    cout &lt;&lt; "Worker ID: " &lt;&lt; w1.getWorkerID() &lt;&lt; endl;
+    cout &lt;&lt; "Salary: " &lt;&lt; w1.getSalary() &lt;&lt; endl;
+    cout &lt;&lt; "########### END ###########" &lt;&lt; endl;
+		
+  	// 堆上动态创建派生类 Worker 对象
+    Worker* w2 = new Worker("Tom", 38, 10024, 8000.74);
+    cout &lt;&lt; "####### WORKER INFO #######" &lt;&lt; endl;
+    cout &lt;&lt; "Name: " &lt;&lt; w2-&gt;getName() &lt;&lt; endl;
+    cout &lt;&lt; "Age: " &lt;&lt; w2-&gt;getAge() &lt;&lt; endl;
+    cout &lt;&lt; "Worker ID: " &lt;&lt; w2-&gt;getWorkerID() &lt;&lt; endl;
+    cout &lt;&lt; "Salary: " &lt;&lt; w2-&gt;getSalary() &lt;&lt; endl;
+    cout &lt;&lt; "########### END ###########" &lt;&lt; endl;
+
+    // test base class reference
+    cout &lt;&lt; "####### BASE CLASS REFERENCE #######" &lt;&lt; endl;
+    someoneIntroduce(s1);
+    someoneIntroduce(w1);
+
+    // test base class pointer
+    cout &lt;&lt; "####### BASE CLASS POINTER #######" &lt;&lt; endl;
+    People* perplePtr = s2;
+    perplePtr-&gt;introduce();
+    delete perplePtr;		// 基类指针释放派生类对象
+
+    perplePtr = w2;
+    perplePtr-&gt;introduce();
+    delete perplePtr;
+    return 0;
+}
+</code></pre>
+
+<p>纯虚函数：一个只有声明，没有定义，且被 “初始化” 为 0 的虚函数被称为纯虚函数。含有纯虚函数的类称为抽象基类，不可实例化。即不能创建对象，存在的意义就是被继承，提供族类的公共接口。如果一个类中声明了纯虚函数，而派生类中没有对该函数的定义，则该函数在派生类中仍然为纯虚函数，派生类仍然为纯虚基类。</p>
+
+<pre><code class="language-C++">class className {
+  	virtual returnType func(parameters List) = 0;		// 虚函数的声明
+};
+</code></pre>
+
+    </article>
+
+    
+    <div class="social-share-wrapper">
+      <div class="social-share"></div>
+    </div>
+    
+  </div>
+
+  <section class="author-detail">
+    <section class="post-footer-item author-card">
+      <div class="avatar">
+        <img src="/assets/icons/icon.jpg" alt="">
+      </div>
+      <div class="author-name" rel="author">刘浩光</div>
+      <div class="bio">
+        <p>CVer  深度学习者</p>
+      </div>
+      
+      <ul class="sns-links">
+        
+        <li>
+          <a href="//github.com/gravity-lhg" target="_blank">
+                    <i class="iconfont icon-github"></i>
+                </a>
+        </li>
+        
+        <li>
+          <a href="//zhihu.com/people/gravity-74-50" target="_blank">
+                    <i class="iconfont icon-zhihu"></i>
+                </a>
+        </li>
+        
+      </ul>
+      
+    </section>
+    <section class="post-footer-item read-next">
+      
+
+      
+      <div class="read-next-item">
+        <a href="/2023/03/13/First_compiling.html" class="read-next-link"></a>
+          <section>
+            <span>Compiling Stuffs</span>
+            <p>GCC/G++ 编译、make 编译、CMake 编译</p>
+          </section>
+          
+          <div class="filter"></div>
+          <img src="/assets/images/header/compiling.png" alt="">
+          
+      </div>
+      
+    </section>
+    
+    <section class="post-footer-item comment">
+      <div id="disqus_thread"></div>
+      <div id="gitalk_container"></div>
+    </section>
+  </section>
+
+  <footer class="g-footer">
+  <section>刘浩光的个人博客 ©
+  
+  
+  2023
+  </section>
+  <section>Powered by <a href="//jekyllrb.com">Jekyll</a></section>
+</footer>
+
+
+  <script src="/assets/js/social-share.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+  <script>
+    socialShare('.social-share', {
+      sites: [
+        
+          'wechat'
+          ,
+          
+        
+          'weibo'
+          ,
+          
+        
+          'douban'
+          ,
+          
+        
+          'twitter'
+          
+        
+      ],
+      wechatQrcodeTitle: "分享到微信朋友圈",
+      wechatQrcodeHelper: '<p>扫码后点击右上角</p><p>将本文分享至朋友圈</p>'
+    });
+  </script>
+
+  
+	
+  
+
+  <script src="/assets/js/prism.js"></script>
+  <script src="/assets/js/index.min.js"></script>
+</body>
+
+</html>
