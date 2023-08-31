@@ -1,6 +1,12 @@
 [
   
     {
+      "title"    : "设计模式之单例模式 (Singleton)",
+      "tags"     : "C++ DesignPattern",
+      "url"      : "/2023/08/31/singleton.html"
+    } ,
+  
+    {
       "title"    : "C++ 面相对象的三大特性",
       "tags"     : "C++",
       "url"      : "/2023/08/17/ThreeCharacteristics.html"

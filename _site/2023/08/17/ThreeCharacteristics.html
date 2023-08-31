@@ -157,7 +157,7 @@ Author: Ray-Eldath
   <p><strong>封装 Encapsulation、继承 Inheritance、多态 Polymorphism</strong></p>
 </blockquote>
 
-<h4 id="1-封装encapsulate">1. 封装（Encapsulate）</h4>
+<h3 id="1-封装encapsulate">1. 封装（Encapsulate）</h3>
 
 <p>封装是一种将数据和操作封装在一个单元内部的机制，通过将数据成员和成员函数封装在类中，可以实现数据的隐藏与保护，防止外部直接访问会修改类的内部数据，外部只能通过 public 的接口来进行操作。封装可以提高代码的可维护性和安全性，同时也支持实现信息的隐藏和模块化设计。</p>
 
@@ -176,7 +176,7 @@ private:
 // 注：类外部无法直接访问的成员可以通过实现公共接口进行访问
 </code></pre>
 
-<h4 id="2-继承inheritance">2. 继承（Inheritance）</h4>
+<h3 id="2-继承inheritance">2. 继承（Inheritance）</h3>
 
 <p>继承是一种通过从现有类派生新类的机制，派生类可以继承现有类的成员变量和成员函数，同时可以新增或重写自己的成员。继承可以实现代码的复用、扩展和层次化设计，是的类之间可以建立层次关系，派生类可以共享基类的特性。</p>
 
@@ -215,7 +215,7 @@ private:
   <li>”实现了一个“ 或 ”实现了一个接口“ 关系：当一个类保护或私有的继承了另一个类时，这通常表示派生类在实现中使用了基类的接口和功能，但并不打算向外界暴露这种关系。保护继承和私有继承更多的用于实现代码的复用和实现细节的隐藏。例如，有一个基类 Shape，可以使用保护和私有继承来创建一个派生类 Circle，以便在圆的实现中重用 Shape 类的功能，但并不希望直接将 Circle 视为 Shape 类的一种类型</li>
 </ul>
 
-<h4 id="3-多态polymorphism">3. 多态（Polymorphism）</h4>
+<h3 id="3-多态polymorphism">3. 多态（Polymorphism）</h3>
 
 <p>多态是一种允许不同对象以统一的方式进行操作的特性，它使得派生类对象可以通过基类的指针或引用来调用相同的方法，从而实现不同的行为。多态可以通过 <strong>虚函数（动态多态性）</strong>或 <strong>函数重载 以及 泛型编程（静态多态性）</strong>来实现，它可以提高代码的灵活性和扩展性，同时支持运行时的动态绑定。</p>
 
@@ -460,6 +460,18 @@ int main() {
       
     </section>
     <section class="post-footer-item read-next">
+      
+      <div class="read-next-item">
+        <a href="/2023/08/31/singleton.html" class="read-next-link"></a>
+        <section>
+          <span>设计模式之单例模式 (Singleton)</span>
+          <p>单例模式在实际应用中常用于管理全局资源、配置信息、xx 池、日志记录等</p>
+        </section>
+        
+        <div class="filter"></div>
+        <img src="/assets/images/header/designPatterns.png" alt="">
+        
+     </div>
       
 
       
