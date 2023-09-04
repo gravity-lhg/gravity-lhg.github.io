@@ -1,6 +1,12 @@
 [
   
     {
+      "title"    : "VS Code 下 C++ 开发环境配置",
+      "tags"     : "C++",
+      "url"      : "/2023/09/04/vscode_c++.html"
+    } ,
+  
+    {
       "title"    : "设计模式之单例模式 (Singleton)",
       "tags"     : "C++ DesignPattern",
       "url"      : "/2023/08/31/singleton.html"

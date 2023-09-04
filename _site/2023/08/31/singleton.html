@@ -153,13 +153,13 @@ Author: Ray-Eldath
     
 
     <article class="markdown-body">
-      <h2 id="单例模式在实际应用中常用于管理全局资源配置信息xx-池日志记录等">单例模式在实际应用中常用于管理全局资源、配置信息、xx 池、日志记录等</h2>
+      <h2 id="单例模式在实际应用中常用于管理全局资源配置信息xx池实现日志记录等">单例模式在实际应用中常用于管理全局资源、配置信息、xx池实现、日志记录等</h2>
 
 <blockquote>
   <p>单例模式（Singleton）</p>
 </blockquote>
 
-<p>单例模式是一种创建型设计模式，它确保一个类只有一个实例，并提供一个全局访问点以访问这个实例。这样的设计可以在整个应用程序中共享一个共享资源或状态，以及避免重复创建相同的对象。单例模式在实际应用中常用于管理全局资源、配置信息、xx 池、日志记录等。</p>
+<p>单例模式是一种创建型设计模式，它确保一个类只有一个实例，并提供一个全局访问点以访问这个实例。这样的设计可以在整个应用程序中共享一个共享资源或状态，以及避免重复创建相同的对象。单例模式在实际应用中常用于管理全局资源、配置信息、xx池实现、日志记录等。</p>
 
 <p>一般的，单例模式的设计应该注意以下几点：</p>
 
@@ -317,7 +317,7 @@ private:
 
 <p><strong>注：</strong>在设计单例模式的时候，在很多情况下其实是可以不用去考虑到线程安全的问题的，不用进行繁琐的加锁等操作，可以在工程实现层面解决，如：在主线程中创建实例，子线程中调用实例方法，这样可以规避多线程创建实例安全性的问题</p>
 
-<h3 id="4-采用-模版类-来实现单例模式代码如下">4. 采用 模版类 来实现单例模式，代码如下：</h3>
+<h3 id="4-采用模版类来实现单例模式">4. 采用模版类来实现单例模式</h3>
 
 <pre><code class="language-C++">template&lt;typename T&gt;
 class Singleton {
@@ -355,7 +355,7 @@ int main() {
 }
 </code></pre>
 
-<p><strong>注：</strong>在类的外部是无法访问 private 下的成员与函数，在此将 <code class="language-plaintext highlighter-rouge">singleton&lt;A&gt;</code> 声明为类 A 的友员类，在不破坏单例模式的前提下构造实例</p>
+<p><strong>注：</strong>在类的外部是无法访问 private 下的成员与函数，在此将 <code class="language-plaintext highlighter-rouge">singleton&lt;A&gt;</code> 声明为类 A 的友员类，在不破坏单例模式的前提下构造实例。</p>
 
     </article>
 
@@ -394,6 +394,18 @@ int main() {
       
     </section>
     <section class="post-footer-item read-next">
+      
+      <div class="read-next-item">
+        <a href="/2023/09/04/vscode_c++.html" class="read-next-link"></a>
+        <section>
+          <span>VS Code 下 C++ 开发环境配置</span>
+          <p>VS Code 是由微软开发的一个轻量的、可扩展性强的集成开发工具</p>
+        </section>
+        
+        <div class="filter"></div>
+        <img src="/assets/images/header/vscode.png" alt="">
+        
+     </div>
       
 
       
